@@ -1,0 +1,13 @@
+{
+  "name": "from-juice",
+  "private": true,
+  "description": "TODO",
+  "keywords": ["todo"],
+  "author": {
+    "name": "Stephen O'Dea",
+    "email": "hey@stephenodea.me",
+    "url": "https://stephenodea.me"
+  },
+  "license": "GPL-3.0-only",
+  "packageManager": "pnpm@10.29.3"
+}

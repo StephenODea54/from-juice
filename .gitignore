@@ -1,0 +1,15 @@
+# Ignore everything
+*
+
+# But descend into directories
+!*/
+
+# but still exclude generated folders
+*node_modules
+
+# And permit certain files
+!.gitignore
+!LICENSE
+
+# And filetypes
+!*.json
