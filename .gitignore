@@ -8,8 +8,11 @@
 *node_modules
 
 # And permit certain files
+!.env.example
 !.gitignore
 !LICENSE
 
 # And filetypes
 !*.json
+!*.ts
+!*.yaml
