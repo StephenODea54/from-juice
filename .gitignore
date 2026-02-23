@@ -5,6 +5,7 @@
 !*/
 
 # but still exclude generated folders
+*.alchemy
 *node_modules
 
 # And permit certain files
