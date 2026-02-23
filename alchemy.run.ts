@@ -1,4 +1,5 @@
 import alchemy from "alchemy";
+import { TanStackStart } from "alchemy/cloudflare";
 import { NeonBranch, NeonProject } from "alchemy/neon";
 import { CloudflareStateStore } from "alchemy/state";
 import * as dotenv from "dotenv";
@@ -69,3 +70,12 @@ if (stageType === "PRODUCTION") {
   console.log(`${stageType} branch ready`);
   console.log(`Branch name: ${neonBranch.name}`);
 }
+
+/* *
+* User Application Config
+*/
+const userApplication = await TanStackStart("from-juice-user-application");
+
+console.log({
+  url: userApplication.url
+});

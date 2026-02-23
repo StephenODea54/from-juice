@@ -16,4 +16,5 @@
 # And filetypes
 !*.json
 !*.ts
+!*.tsx
 !*.yaml
