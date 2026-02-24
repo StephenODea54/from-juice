@@ -10,7 +10,7 @@ export default antfu({
     semi: true,
     quotes: "double",
   },
-  ignores: ["./src/routeTree.gen.ts"],
+  ignores: [".pnpm-store", "./src/routeTree.gen.ts"],
 }, {
   rules: {
     "antfu/no-top-level-await": ["off"],
@@ -19,10 +19,10 @@ export default antfu({
     "node/prefer-global/process": ["off"],
     "perfectionist/sort-imports": ["error"],
     "react-refresh/only-export-components": ["off"],
-    "ts/consistent-type-definitions": ["error", "type"],
+    "ts/consistent-type-definitions": ["off"],
     "unicorn/filename-case": ["error", {
       case: "kebabCase",
-      ignore: ["README.md"],
+      ignore: ["README.md", "PULL_REQUEST_TEMPLATE.md"],
     }],
   },
 });

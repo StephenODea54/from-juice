@@ -13,9 +13,3 @@ export async function setup({ provide }: TestProject) {
     await app.cleanup();
   };
 }
-
-declare module "vitest" {
-  export type ProvidedContext = {
-    dbConnectionUri: string;
-  };
-}

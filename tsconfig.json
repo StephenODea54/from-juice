@@ -4,9 +4,11 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["@cloudflare/workers-types"],
+    "types": ["@cloudflare/workers-types", "vitest"],
+    "allowImportingTsExtensions": true,
     "strictNullChecks": true,
+    "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["alchemy.run.ts", "src/**/*.ts", "vitest.setup.ts"]
+  "include": ["alchemy.run.ts", "vitest.setup.ts", "src/**/*.ts", "**/*.d.ts"]
 }

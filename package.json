@@ -2,7 +2,6 @@
   "name": "from-juice",
   "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.29.3",
   "description": "TODO",
   "author": {
     "name": "Stephen O'Dea",

@@ -18,7 +18,9 @@
 
 # And filetypes
 !*.json
+!*.md
 !*.mjs
 !*.ts
 !*.tsx
+!*.yml
 !*.yaml

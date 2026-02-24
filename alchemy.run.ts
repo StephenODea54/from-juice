@@ -1,6 +1,6 @@
 import alchemy from "alchemy";
 import { TanStackStart } from "alchemy/cloudflare";
-import { NeonBranch, NeonProject } from "alchemy/neon";
+import { NeonBranch, NeonProjectRef } from "alchemy/neon";
 import { CloudflareStateStore } from "alchemy/state";
 import * as dotenv from "dotenv";
 
@@ -12,7 +12,7 @@ dotenv.config();
 type StageType = "PERSONAL" | "TEST" | "PULL_REQUEST" | "PRODUCTION";
 
 function getStageType(stage: string): StageType {
-  if (stage === "production")
+  if (stage === "prod")
     return "PRODUCTION";
   if (/^pr-\d+$/.test(stage))
     return "PULL_REQUEST";
@@ -39,9 +39,9 @@ const { stageName, stageType } = resolveStage();
 export const app = await alchemy("from-juice", {
   stage: stageName,
   password: process.env.ALCHEMY_PASSWORD,
-  stateStore: stageType === "PRODUCTION"
-    ? scope => new CloudflareStateStore(scope)
-    : undefined,
+  stateStore: stageType === "PERSONAL"
+    ? undefined
+    : scope => new CloudflareStateStore(scope, { forceUpdate: true }),
 });
 
 /* *
@@ -49,9 +49,11 @@ export const app = await alchemy("from-juice", {
 */
 const neonApiKey = alchemy.secret(process.env.NEON_API_KEY);
 
-const neonProject = await NeonProject("from-juice-neon-project", {
+const neonProject = await NeonProjectRef({
   name: "From Juice",
   apiKey: neonApiKey,
+  default_branch_name: "production",
+  delete: false,
 });
 
 let dbConnectionUri: ReturnType<typeof alchemy.secret<string>>;
@@ -89,13 +91,14 @@ export { dbConnectionUri };
 /* *
 * User Application Config
 */
-export const userApplication = await TanStackStart("from-juice-user-application", {
-  name: "from-juice",
-  bindings: {
-    DB_CONNECTION_URI: dbConnectionUri,
-  },
-});
+if (stageType !== "TEST") {
+  const userApplication = await TanStackStart("app", {
+    bindings: {
+      DB_CONNECTION_URI: dbConnectionUri,
+    },
+  });
 
-console.log({
-  url: userApplication.url,
-});
+  console.log({
+    url: userApplication.url,
+  });
+}
