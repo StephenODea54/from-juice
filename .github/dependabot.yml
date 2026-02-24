@@ -1,0 +1,46 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      effect:
+        patterns:
+          - "effect"
+          - "@effect/*"
+      drizzle:
+        patterns:
+          - "drizzle-orm"
+      cloudflare:
+        patterns:
+          - "@cloudflare/*"
+          - "alchemy"
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@vitejs/plugin-react"
+          - "eslint-plugin-react-*"
+          - "@eslint-react/*"
+      tanstack:
+        patterns:
+          - "@tanstack/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "eslint-plugin-*"
+          - "@antfu/eslint-config"
+      vite:
+        patterns:
+          - "vite"
+          - "vite-*"
+          - "vitest"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
