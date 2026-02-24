@@ -6,6 +6,9 @@
 
 # but still exclude generated folders
 *.alchemy
+*.tanstack
+*.wrangler
+*dist
 *node_modules
 
 # And permit certain files

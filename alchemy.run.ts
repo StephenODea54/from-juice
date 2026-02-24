@@ -9,11 +9,12 @@ dotenv.config();
 /* *
 * Alchemy State, Stage, and App Configuration
 */
-type StageType = "PERSONAL" | "PULL_REQUEST" | "PRODUCTION";
+type StageType = "PERSONAL" | "TEST" | "PULL_REQUEST" | "PRODUCTION";
 
 function getStageType(stage: string): StageType {
   if (stage === "production") return "PRODUCTION";
   if (/^pr-\d+$/.test(stage)) return "PULL_REQUEST";
+  if (/^test-/.test(stage)) return "TEST";
   return "PERSONAL";
 }
 
@@ -32,7 +33,7 @@ export function resolveStage(): { stageName: string; stageType: StageType } {
 
 const { stageName, stageType } = resolveStage();
 
-await alchemy("from-juice", {
+export const app = await alchemy("from-juice", {
   stage: stageName,
   password: process.env.ALCHEMY_PASSWORD,
   stateStore: stageType === "PRODUCTION"
@@ -50,8 +51,17 @@ const neonProject = await NeonProject("from-juice-neon-project", {
   apiKey: neonApiKey,
 });
 
+let dbConnectionUri: ReturnType<typeof alchemy.secret<string>>;
+
 if (stageType === "PRODUCTION") {
-  console.log("Using production Neon Branch")
+  console.log("Using production Neon Branch");
+  const productionDatabaseConnectionUri = process.env.PRODUCTION_DATABASE_URI;
+
+  if (!productionDatabaseConnectionUri) {
+    throw new Error("You forgot to add the database uri for production you silly goose")
+  }
+
+  dbConnectionUri = alchemy.secret(productionDatabaseConnectionUri);
 } else {
   const neonBranch = await NeonBranch(`neon-branch-${stageName}`, {
     name: `${stageType}/${stageName}`,
@@ -59,23 +69,29 @@ if (stageType === "PRODUCTION") {
     apiKey: neonApiKey,
     endpoints: [
       {
-        type: "read_only"
-      },
-      {
         type: "read_write"
       }
     ],
   });
 
+  dbConnectionUri = neonBranch.connectionUris[0].connection_uri;
+
   console.log(`${stageType} branch ready`);
   console.log(`Branch name: ${neonBranch.name}`);
 }
 
+export { dbConnectionUri };
+
 /* *
 * User Application Config
 */
-const userApplication = await TanStackStart("from-juice-user-application");
+export const userApplication = await TanStackStart("from-juice-user-application", {
+  name: "from-juice",
+  bindings: {
+    DB_CONNECTION_URI: dbConnectionUri,
+  }
+});
 
 console.log({
-  url: userApplication.url
+  url: userApplication.url,
 });

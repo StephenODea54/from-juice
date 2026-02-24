@@ -6,7 +6,7 @@
     "target": "ES2022",
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "types": ["@cloudflare/workers-types", "./types/env.d.ts"]
+    "types": ["@cloudflare/workers-types"]
   },
-  "include": ["alchemy.run.ts", "src/**/*.ts"]
+  "include": ["alchemy.run.ts", "src/**/*.ts", "vitest.setup.ts"]
 }
