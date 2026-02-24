@@ -1,5 +1,5 @@
-import { Context, Data, Effect } from "effect";
 import { drizzle } from "drizzle-orm/neon-http";
+import { Context, Data, Effect } from "effect";
 
 class DatabaseConnectionError extends Data.TaggedError("DatabaseConnectionError")<{
   message?: string;
@@ -13,15 +13,16 @@ export class DatabaseService extends Context.Tag("DatabaseService")<
   { readonly client: DatabaseClient }
 >() {}
 
-export const makeDatabaseService = (connectionUri: string) =>
-  Effect.try({
+export function makeDatabaseService(connectionUri: string) {
+  return Effect.try({
     try: () => ({
       // TODO: Add schema
       client: drizzle(connectionUri, { casing: "snake_case" }),
     }),
-    catch: (cause) =>
+    catch: cause =>
       new DatabaseConnectionError({
         message: "Failed to establish a connection to the database",
         cause,
       }),
   });
+}

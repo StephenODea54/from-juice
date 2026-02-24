@@ -15,7 +15,7 @@ export async function setup({ provide }: TestProject) {
 }
 
 declare module "vitest" {
-  export interface ProvidedContext {
+  export type ProvidedContext = {
     dbConnectionUri: string;
-  }
+  };
 }

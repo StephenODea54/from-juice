@@ -2,21 +2,23 @@
   "name": "from-juice",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@10.29.3",
   "description": "TODO",
-  "scripts": {
-    "test": "vitest",
-    "dev": "alchemy dev"
-  },
-  "keywords": [
-    "todo"
-  ],
   "author": {
     "name": "Stephen O'Dea",
     "email": "hey@stephenodea.me",
     "url": "https://stephenodea.me"
   },
   "license": "GPL-3.0-only",
-  "packageManager": "pnpm@10.29.3",
+  "keywords": [
+    "todo"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "test": "vitest",
+    "dev": "alchemy dev"
+  },
   "dependencies": {
     "@effect/sql-pg": "^0.50.3",
     "@neondatabase/serverless": "^1.0.2",
@@ -30,12 +32,18 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^7.4.3",
     "@cloudflare/vite-plugin": "^1.25.2",
     "@cloudflare/workers-types": "^4.20260303.0",
+    "@eslint-react/eslint-plugin": "^2.13.0",
     "@types/node": "^25.3.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
+    "eslint": "^9.5.0",
+    "eslint-plugin-format": "^1.4.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.1.1",

@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "moduleResolution": "Bundler",
-    "module": "ESNext",
     "target": "ES2022",
-    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["@cloudflare/workers-types"],
     "strictNullChecks": true,
-    "types": ["@cloudflare/workers-types"]
+    "skipLibCheck": true
   },
   "include": ["alchemy.run.ts", "src/**/*.ts", "vitest.setup.ts"]
 }

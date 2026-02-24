@@ -12,9 +12,12 @@ dotenv.config();
 type StageType = "PERSONAL" | "TEST" | "PULL_REQUEST" | "PRODUCTION";
 
 function getStageType(stage: string): StageType {
-  if (stage === "production") return "PRODUCTION";
-  if (/^pr-\d+$/.test(stage)) return "PULL_REQUEST";
-  if (/^test-/.test(stage)) return "TEST";
+  if (stage === "production")
+    return "PRODUCTION";
+  if (/^pr-\d+$/.test(stage))
+    return "PULL_REQUEST";
+  if (stage.startsWith("test-"))
+    return "TEST";
   return "PERSONAL";
 }
 
@@ -37,8 +40,8 @@ export const app = await alchemy("from-juice", {
   stage: stageName,
   password: process.env.ALCHEMY_PASSWORD,
   stateStore: stageType === "PRODUCTION"
-    ? (scope) => new CloudflareStateStore(scope)
-    : undefined
+    ? scope => new CloudflareStateStore(scope)
+    : undefined,
 });
 
 /* *
@@ -58,19 +61,20 @@ if (stageType === "PRODUCTION") {
   const productionDatabaseConnectionUri = process.env.PRODUCTION_DATABASE_URI;
 
   if (!productionDatabaseConnectionUri) {
-    throw new Error("You forgot to add the database uri for production you silly goose")
+    throw new Error("You forgot to add the database uri for production you silly goose");
   }
 
   dbConnectionUri = alchemy.secret(productionDatabaseConnectionUri);
-} else {
+}
+else {
   const neonBranch = await NeonBranch(`neon-branch-${stageName}`, {
     name: `${stageType}/${stageName}`,
     project: neonProject.id,
     apiKey: neonApiKey,
     endpoints: [
       {
-        type: "read_write"
-      }
+        type: "read_write",
+      },
     ],
   });
 
@@ -89,7 +93,7 @@ export const userApplication = await TanStackStart("from-juice-user-application"
   name: "from-juice",
   bindings: {
     DB_CONNECTION_URI: dbConnectionUri,
-  }
+  },
 });
 
 console.log({
