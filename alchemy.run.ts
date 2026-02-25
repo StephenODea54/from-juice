@@ -1,5 +1,6 @@
 import alchemy from "alchemy";
 import { TanStackStart } from "alchemy/cloudflare";
+import { GitHubComment } from "alchemy/github";
 import { NeonBranch, NeonProjectRef } from "alchemy/neon";
 import { CloudflareStateStore } from "alchemy/state";
 import * as dotenv from "dotenv";
@@ -101,4 +102,22 @@ if (stageType !== "TEST") {
   console.log({
     url: userApplication.url,
   });
+
+  if (stageType === "PULL_REQUEST") {
+    await GitHubComment("preview-comment", {
+      owner: "StephenODea54",
+      repository: "from-juice",
+      issueNumber: Number(process.env.PULL_REQUEST),
+      body: `## 🍊 Deployment Preview
+
+Your changes have been deployed to a preview environment:
+
+**🌐 URL:** ${userApplication.url}
+
+Built from commit \`${process.env.GITHUB_SHA?.slice(0, 7)}\`
+
+---
+<sub>This comment updates automatically with each push.</sub>`,
+    });
+  }
 }
