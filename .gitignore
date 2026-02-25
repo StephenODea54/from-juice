@@ -1,0 +1,26 @@
+# Ignore everything
+*
+
+# But descend into directories
+!*/
+
+# but still exclude generated folders
+*.alchemy
+*.tanstack
+*.wrangler
+*dist
+*node_modules
+
+# And permit certain files
+!.env.example
+!.gitignore
+!LICENSE
+
+# And filetypes
+!*.json
+!*.md
+!*.mjs
+!*.ts
+!*.tsx
+!*.yml
+!*.yaml
