@@ -1,32 +1,16 @@
-name: Deploy
+name: CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - closed
+    branches: [main]
 
-concurrency:
-  group: deploy-${{ github.ref }}
-  cancel-in-progress: false
-
-env:
-  STAGE: ${{ github.event_name == 'pull_request' && format('pr-{0}',
-    github.event.number) || (github.ref == 'refs/heads/main' && 'prod' ||
-    github.ref_name) }}
+permissions:
+  contents: read
 
 jobs:
-  deploy:
-    if: ${{ github.event.action != 'closed' }}
+  quality:
+    name: Code Quality
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -42,24 +26,22 @@ jobs:
 
       - run: pnpm install
 
-      - name: Deploy
-        run: pnpm dlx alchemy deploy --stage ${{ env.STAGE }}
-        env:
-          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
-          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
-          PULL_REQUEST: ${{ github.event.number }}
-          GITHUB_SHA: ${{ github.sha }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Typecheck
+        run: pnpm tsc --noEmit
 
-  cleanup:
+      - name: Lint
+        run: pnpm run lint
+
+  test:
+    name: Tests
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
+    needs: [quality]
+    env:
+      NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+      ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+      ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -75,19 +57,5 @@ jobs:
 
       - run: pnpm install
 
-      - name: Safety Check
-        run: |-
-          if [ "${{ env.STAGE }}" = "prod" ]; then
-            echo "ERROR: Cannot destroy prod environment in cleanup job"
-            exit 1
-          fi
-
-      - name: Destroy Preview Environment
-        run: pnpm dlx alchemy destroy --stage ${{ env.STAGE }}
-        env:
-          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
-          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
-          PULL_REQUEST: ${{ github.event.number }}
+      - name: Run tests
+        run: pnpm run test
