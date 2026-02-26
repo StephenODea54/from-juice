@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { Effect } from "effect";
-import { describe, expect, inject, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { DatabaseService, TestDbLayer } from "./db-service";
 
 describe("databaseService", () => {
