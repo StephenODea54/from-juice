@@ -1,5 +1,5 @@
 import alchemy from "alchemy";
-import { TanStackStart } from "alchemy/cloudflare";
+import { KVNamespace, TanStackStart } from "alchemy/cloudflare";
 import { GitHubComment } from "alchemy/github";
 import { NeonBranch, NeonProjectRef } from "alchemy/neon";
 import { CloudflareStateStore } from "alchemy/state";
@@ -97,6 +97,13 @@ const betterAuthUrl = alchemy.secret(process.env.BETTER_AUTH_URL);
 const betterAuthSecret = alchemy.secret(process.env.BETTER_AUTH_SECRET);
 
 /* *
+* KV Namespace
+*/
+const kvNamespace = await KVNamespace("cache", {
+  title: "from-juice-cache",
+});
+
+/* *
 * User Application Config
 */
 if (stageType !== "TEST") {
@@ -105,6 +112,7 @@ if (stageType !== "TEST") {
       BETTER_AUTH_URL: betterAuthUrl,
       BETTER_AUTH_SECRET: betterAuthSecret,
       DB_CONNECTION_URI: dbConnectionUri,
+      KV_NAMESPACE: kvNamespace,
     },
   });
 
