@@ -121,3 +121,7 @@ Built from commit \`${process.env.GITHUB_SHA?.slice(0, 7)}\`
     });
   }
 }
+
+if (stageType !== "TEST") {
+  await app.finalize();
+}
