@@ -90,11 +90,20 @@ else {
 export { dbConnectionUri };
 
 /* *
+* Better Auth Secrets
+*/
+
+const betterAuthUrl = alchemy.secret(process.env.BETTER_AUTH_URL);
+const betterAuthSecret = alchemy.secret(process.env.BETTER_AUTH_SECRET);
+
+/* *
 * User Application Config
 */
 if (stageType !== "TEST") {
   const userApplication = await TanStackStart("app", {
     bindings: {
+      BETTER_AUTH_URL: betterAuthUrl,
+      BETTER_AUTH_SECRET: betterAuthSecret,
       DB_CONNECTION_URI: dbConnectionUri,
     },
   });
