@@ -2,14 +2,16 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { Context, Data, Effect, Layer } from "effect";
 import { DatabaseService } from "@/services/db/db-service";
+import { KvService } from "@/services/kv/kv-service";
 
 class AuthError extends Data.TaggedError("AuthError")<{
   message?: string;
   readonly cause: unknown;
 }> {};
 
-type DrizzleClient = Parameters<typeof drizzleAdapter>[0];
-function createAuthConfig(db: DrizzleClient, baseUrl: string, secret: string) {
+type DatabaseAdapter = NonNullable<Parameters<typeof betterAuth>[0]["database"]>;
+type SecondaryStorage = NonNullable<Parameters<typeof betterAuth>[0]["secondaryStorage"]>;
+function createAuthConfig(db: DatabaseAdapter, secondaryStorage: SecondaryStorage, baseUrl: string, secret: string) {
   return Effect.try({
     try: () =>
       betterAuth({
@@ -18,6 +20,7 @@ function createAuthConfig(db: DrizzleClient, baseUrl: string, secret: string) {
         }),
         baseUrl,
         secret,
+        secondaryStorage,
         experimental: { joins: true },
       }),
     catch: error => new AuthError({ cause: error, message: "Failed to initialize auth" }),
@@ -45,7 +48,17 @@ export const AuthServiceLive = Layer.effect(
   AuthService,
   Effect.gen(function* () {
     const { client } = yield* DatabaseService;
-    const auth = yield* createAuthConfig(client, "yo", "momma");
+    const kv = yield* KvService;
+
+    // Better Auth config requires the secondary storage functions
+    // to return promises and not our cool effect code
+    const secondaryStorage = {
+      get: (key: string) => Effect.runPromise(kv.get(key)),
+      set: (key: string, value: string, ttl?: number) => Effect.runPromise(kv.set(key, value, ttl)),
+      delete: (key: string) => Effect.runPromise(kv.delete(key)),
+    };
+
+    const auth = yield* createAuthConfig(client, secondaryStorage, "yo", "momma");
 
     return {
       auth,
