@@ -122,4 +122,6 @@ Built from commit \`${process.env.GITHUB_SHA?.slice(0, 7)}\`
   }
 }
 
-await app.finalize();
+if (stageType !== "TEST") {
+  await app.finalize();
+}
