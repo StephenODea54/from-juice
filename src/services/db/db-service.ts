@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-http";
-import { Context, Data, Effect } from "effect";
+import { Context, Data, Effect, Layer } from "effect";
+import { inject } from "vitest";
 
 class DatabaseConnectionError extends Data.TaggedError("DatabaseConnectionError")<{
   message?: string;
@@ -13,7 +14,7 @@ export class DatabaseService extends Context.Tag("DatabaseService")<
   { readonly client: DatabaseClient }
 >() {}
 
-export function makeDatabaseService(connectionUri: string) {
+function makeDatabaseService(connectionUri: string) {
   return Effect.try({
     try: () => ({
       // TODO: Add schema
@@ -26,3 +27,8 @@ export function makeDatabaseService(connectionUri: string) {
       }),
   });
 }
+
+export const TestDbLayer = Layer.effect(
+  DatabaseService,
+  makeDatabaseService(inject("dbConnectionUri")),
+);
