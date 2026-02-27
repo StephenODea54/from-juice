@@ -2,6 +2,7 @@ import alchemy from "alchemy";
 import { KVNamespace, TanStackStart } from "alchemy/cloudflare";
 import { GitHubComment } from "alchemy/github";
 import { NeonBranch, NeonProjectRef } from "alchemy/neon";
+import { Exec } from "alchemy/os";
 import { CloudflareStateStore } from "alchemy/state";
 import * as dotenv from "dotenv";
 
@@ -88,6 +89,23 @@ else {
 }
 
 export { dbConnectionUri };
+
+/* *
+* Datbase Migrations
+*/
+await Exec("db-generate", {
+  command: "pnpm run db:generate",
+  env: {
+    DB_CONNECTION_URI: dbConnectionUri,
+  },
+});
+
+await Exec("db-migrate", {
+  command: "pnpm run db:migrate",
+  env: {
+    DB_CONNECTION_URI: dbConnectionUri,
+  },
+});
 
 /* *
 * Better Auth Secrets
