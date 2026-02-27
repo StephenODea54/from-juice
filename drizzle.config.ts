@@ -17,4 +17,5 @@ export default defineConfig({
     schema: "metadata",
     table: "migrations",
   },
+  casing: "snake_case",
 });
