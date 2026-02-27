@@ -20,6 +20,7 @@
 !*.json
 !*.md
 !*.mjs
+!*.sql
 !*.ts
 !*.tsx
 !*.yml
