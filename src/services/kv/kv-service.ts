@@ -1,5 +1,4 @@
 import { Context, Data, Effect, Layer } from "effect";
-import { inject } from "vitest";
 
 class KVError extends Data.TaggedError("KVError")<{
   message?: string;
@@ -45,7 +44,20 @@ function makeKvService(kv: KVNamespace<string>) {
   });
 }
 
+// Cloudflare KV namespaces are Worker runtime bindings that only exist
+// inside the Workers execution environment. They cannot be accessed from
+// Node.js (where vitest runs). The @cloudflare/vitest-pool-workers package
+// can simulate them via Miniflare, but currently only supports Vitest 2.x–3.x
+
+// For now, we use an in-memory mock. Revisit when vitest-pool-workers
+// supports Vitest 4.x.
+const mockKV = {
+  get: async () => null,
+  put: async () => {},
+  delete: async () => {},
+} as unknown as KVNamespace<string>;
+
 export const TestKvLayer = Layer.effect(
   KvService,
-  makeKvService(inject("kvNamespace")),
+  makeKvService(mockKV),
 );
