@@ -1,5 +1,3 @@
-/// <reference types="vitest" />
-
 import type { TestProject } from "vitest/node";
 
 export async function setup({ provide }: TestProject) {
@@ -13,3 +11,11 @@ export async function setup({ provide }: TestProject) {
     await app.cleanup();
   };
 }
+
+declare module "vitest" {
+  export interface ProvidedContext {
+    dbConnectionUri: string;
+  }
+}
+
+export {};
