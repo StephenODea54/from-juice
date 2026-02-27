@@ -40,6 +40,8 @@ jobs:
       NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
       ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
       ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+      BETTER_AUTH_PASSWORD: ${{ secrets.BETTER_AUTH_PASSWORD }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
     steps:
