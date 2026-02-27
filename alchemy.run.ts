@@ -110,8 +110,14 @@ await Exec("db-migrate", {
 /* *
 * Better Auth Secrets
 */
-
+if (!process.env.BETTER_AUTH_URL) {
+  throw new Error("BETTER_AUTH_URL environment variable must be set");
+}
 const betterAuthUrl = alchemy.secret(process.env.BETTER_AUTH_URL);
+
+if (!process.env.BETTER_AUTH_SECRET) {
+  throw new Error("BETTER_AUTH_SECRET environment variable must be set");
+}
 const betterAuthSecret = alchemy.secret(process.env.BETTER_AUTH_SECRET);
 
 /* *
