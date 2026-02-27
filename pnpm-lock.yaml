@@ -45,9 +45,6 @@ importers:
       '@antfu/eslint-config':
         specifier: ^7.4.3
         version: 7.4.3(@eslint-react/eslint-plugin@2.13.0(eslint@9.39.3)(typescript@5.9.3))(@vue/compiler-sfc@3.5.28)(eslint-plugin-format@1.4.0(eslint@9.39.3))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.3))(eslint-plugin-react-refresh@0.5.2(eslint@9.39.3))(eslint@9.39.3)(typescript@5.9.3)(vitest@4.0.18(@types/node@25.3.0)(tsx@4.21.0)(yaml@2.8.2))
-      '@cloudflare/vite-plugin':
-        specifier: ^1.25.2
-        version: 1.25.2(vite@7.3.1(@types/node@25.3.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260219.0)(wrangler@4.67.0(@cloudflare/workers-types@4.20260303.0))
       '@cloudflare/workers-types':
         specifier: ^4.20260303.0
         version: 4.20260303.0
@@ -5111,6 +5108,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
       - workerd
+    optional: true
 
   '@cloudflare/workerd-darwin-64@1.20260219.0':
     optional: true
