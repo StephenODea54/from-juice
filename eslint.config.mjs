@@ -10,7 +10,7 @@ export default antfu({
     semi: true,
     quotes: "double",
   },
-  ignores: [".pnpm-store", "./src/routeTree.gen.ts"],
+  ignores: [".pnpm-store", "./src/routeTree.gen.ts", "**/migrations/**"],
 }, {
   rules: {
     "antfu/no-top-level-await": ["off"],
