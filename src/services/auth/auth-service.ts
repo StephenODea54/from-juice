@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { Context, Data, Effect, Layer } from "effect";
 import { DatabaseService } from "@/services/db/db-service";
 import { KvService } from "@/services/kv/kv-service";
@@ -21,6 +22,13 @@ function createAuthConfig(db: DatabaseAdapter, secondaryStorage: SecondaryStorag
         baseUrl,
         secret,
         secondaryStorage,
+        // 🚨 Make sure tanstackStart cookies is last plugin in array
+        plugins: [tanstackStartCookies()],
+        advanced: {
+          database: {
+            generateId: false,
+          },
+        },
         experimental: { joins: true },
       }),
     catch: error => new AuthError({ cause: error, message: "Failed to initialize auth" }),
@@ -30,7 +38,7 @@ function createAuthConfig(db: DatabaseAdapter, secondaryStorage: SecondaryStorag
 type Auth = Effect.Effect.Success<ReturnType<typeof createAuthConfig>>;
 
 type GetSession = Auth["api"]["getSession"];
-type GetSessionParams = Parameters<GetSession>;
+type GetSessionParams = Parameters<GetSession>[0];
 type GetSessionResult = Awaited<ReturnType<GetSession>>;
 
 export class AuthService extends Context.Tag("AuthService")<
@@ -64,7 +72,7 @@ export const AuthServiceLive = Layer.effect(
       auth,
       getSession: (params: GetSessionParams) =>
         Effect.tryPromise({
-          try: () => auth.api.getSession(...params),
+          try: () => auth.api.getSession(params),
           catch: error => new AuthError({ cause: error, message: "Failed to get session" }),
         }),
     };
