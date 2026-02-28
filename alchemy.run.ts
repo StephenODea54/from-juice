@@ -124,7 +124,7 @@ const betterAuthSecret = alchemy.secret(process.env.BETTER_AUTH_SECRET);
 * KV Namespace
 */
 const kvNamespace = await KVNamespace("cache", {
-  title: "from-juice-cache",
+  title: `from-juice-cache-${stageName}`,
 });
 
 /* *
