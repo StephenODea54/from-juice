@@ -2,8 +2,12 @@
   "compilerOptions": {
     "target": "ES2022",
     "jsx": "react-jsx",
+    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "types": ["@cloudflare/workers-types", "vitest"],
     "allowImportingTsExtensions": true,
     "strictNullChecks": true,

@@ -1,7 +1,8 @@
 import alchemy from "alchemy";
-import { TanStackStart } from "alchemy/cloudflare";
+import { KVNamespace, TanStackStart } from "alchemy/cloudflare";
 import { GitHubComment } from "alchemy/github";
 import { NeonBranch, NeonProjectRef } from "alchemy/neon";
+import { Exec } from "alchemy/os";
 import { CloudflareStateStore } from "alchemy/state";
 import * as dotenv from "dotenv";
 
@@ -90,12 +91,52 @@ else {
 export { dbConnectionUri };
 
 /* *
+* Datbase Migrations
+*/
+await Exec("db-generate", {
+  command: "pnpm run db:generate",
+  env: {
+    DB_CONNECTION_URI: dbConnectionUri,
+  },
+});
+
+await Exec("db-migrate", {
+  command: "pnpm run db:migrate",
+  env: {
+    DB_CONNECTION_URI: dbConnectionUri,
+  },
+});
+
+/* *
+* Better Auth Secrets
+*/
+if (!process.env.BETTER_AUTH_URL) {
+  throw new Error("BETTER_AUTH_URL environment variable must be set");
+}
+const betterAuthUrl = alchemy.secret(process.env.BETTER_AUTH_URL);
+
+if (!process.env.BETTER_AUTH_SECRET) {
+  throw new Error("BETTER_AUTH_SECRET environment variable must be set");
+}
+const betterAuthSecret = alchemy.secret(process.env.BETTER_AUTH_SECRET);
+
+/* *
+* KV Namespace
+*/
+const kvNamespace = await KVNamespace("cache", {
+  title: `from-juice-cache-${stageName}`,
+});
+
+/* *
 * User Application Config
 */
 if (stageType !== "TEST") {
   const userApplication = await TanStackStart("app", {
     bindings: {
+      BETTER_AUTH_URL: betterAuthUrl,
+      BETTER_AUTH_SECRET: betterAuthSecret,
       DB_CONNECTION_URI: dbConnectionUri,
+      KV_NAMESPACE: kvNamespace,
     },
   });
 
