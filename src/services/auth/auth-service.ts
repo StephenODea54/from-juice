@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
-import { Context, Data, Effect, Layer } from "effect";
+import { Context, Data, Effect, Layer, Redacted } from "effect";
+import { AppConfig } from "@/services/config/config-service";
 import { DatabaseService } from "@/services/db/db-service";
 import { KvService } from "@/services/kv/kv-service";
 
@@ -12,7 +13,23 @@ class AuthError extends Data.TaggedError("AuthError")<{
 
 type DatabaseAdapter = NonNullable<Parameters<typeof betterAuth>[0]["database"]>;
 type SecondaryStorage = NonNullable<Parameters<typeof betterAuth>[0]["secondaryStorage"]>;
-function createAuthConfig(db: DatabaseAdapter, secondaryStorage: SecondaryStorage, baseUrl: string, secret: string) {
+type GoogleProvider = NonNullable<Parameters<typeof betterAuth>[0]["socialProviders"]>["google"];
+
+type CreateAuthConfigParams = {
+  db: DatabaseAdapter;
+  secondaryStorage: SecondaryStorage;
+  baseUrl: string;
+  secret: string;
+  googleProvider: GoogleProvider;
+};
+
+function createAuthConfig({
+  db,
+  secondaryStorage,
+  baseUrl,
+  secret,
+  googleProvider,
+}: CreateAuthConfigParams) {
   return Effect.try({
     try: () =>
       betterAuth({
@@ -22,6 +39,9 @@ function createAuthConfig(db: DatabaseAdapter, secondaryStorage: SecondaryStorag
         baseUrl,
         secret,
         secondaryStorage,
+        socialProviders: {
+          google: googleProvider,
+        },
         // 🚨 Make sure tanstackStart cookies is last plugin in array
         plugins: [tanstackStartCookies()],
         advanced: {
@@ -57,6 +77,7 @@ export const AuthServiceLive = Layer.effect(
   Effect.gen(function* () {
     const { client } = yield* DatabaseService;
     const kv = yield* KvService;
+    const config = yield* AppConfig;
 
     // Better Auth config requires the secondary storage functions
     // to return promises and not our cool effect code
@@ -66,7 +87,16 @@ export const AuthServiceLive = Layer.effect(
       delete: (key: string) => Effect.runPromise(kv.delete(key)),
     };
 
-    const auth = yield* createAuthConfig(client, secondaryStorage, "yo", "momma");
+    const auth = yield* createAuthConfig({
+      db: client,
+      secondaryStorage,
+      baseUrl: config.betterAuthUrl,
+      secret: Redacted.value(config.betterAuthSecret),
+      googleProvider: {
+        clientId: config.googleClientId,
+        clientSecret: Redacted.value(config.googleClientSecret),
+      },
+    });
 
     return {
       auth,

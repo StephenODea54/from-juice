@@ -3,9 +3,20 @@ import type { TestProject } from "vitest/node";
 export async function setup({ provide }: TestProject) {
   process.env.STAGE = `test-${process.env.USER}`;
 
-  const { app, dbConnectionUri } = await import("./alchemy.run.ts");
+  const {
+    app,
+    betterAuthSecret,
+    betterAuthUrl,
+    dbConnectionUri,
+    googleClientId,
+    googleClientSecret,
+  } = await import("./alchemy.run.ts");
 
+  provide("betterAuthSecret", betterAuthSecret.unencrypted);
+  provide("betterAuthUrl", betterAuthUrl.unencrypted);
   provide("dbConnectionUri", dbConnectionUri.unencrypted);
+  provide("googleClientId", googleClientId.unencrypted);
+  provide("googleClientSecret", googleClientSecret.unencrypted);
 
   return async () => {
     await app.cleanup();
@@ -14,7 +25,11 @@ export async function setup({ provide }: TestProject) {
 
 declare module "vitest" {
   export interface ProvidedContext {
+    betterAuthSecret: string;
+    betterAuthUrl: string;
     dbConnectionUri: string;
+    googleClientId: string;
+    googleClientSecret: string;
   }
 }
 

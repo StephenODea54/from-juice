@@ -1,11 +1,11 @@
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { TestDbLayer } from "@/services/db/db-service";
+import { DatabaseServiceTest } from "@/services/db/db-service";
 import { TestKvLayer } from "@/services/kv/kv-service";
 import { AuthService, AuthServiceLive } from "./auth-service";
 
 const TestAuthLayer = AuthServiceLive.pipe(
-  Layer.provide(TestDbLayer),
+  Layer.provide(DatabaseServiceTest),
   Layer.provide(TestKvLayer),
 );
 
