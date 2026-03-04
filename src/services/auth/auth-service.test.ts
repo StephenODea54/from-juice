@@ -1,9 +1,15 @@
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { BindingsServiceTest } from "@/services/bindings/bindings-service";
 import { KVServiceLive } from "@/services/kv/kv-service";
+import { BindingsServiceTest } from "../bindings/bindings-service-test";
 import { DatabaseServiceLive } from "../db/db-service";
 import { AuthService, AuthServiceLive } from "./auth-service";
+
+const AuthServiceTestLayer = AuthServiceLive.pipe(
+  Layer.provide(DatabaseServiceLive),
+  Layer.provide(KVServiceLive),
+  Layer.provide(BindingsServiceTest),
+);
 
 describe("authService", () => {
   it("creates the auth config successfully", async () => {
@@ -14,10 +20,7 @@ describe("authService", () => {
 
     const auth = await Effect.runPromise(
       program.pipe(
-        Effect.provide(AuthServiceLive),
-        Effect.provide(DatabaseServiceLive),
-        Effect.provide(KVServiceLive),
-        Effect.provide(BindingsServiceTest),
+        Effect.provide(AuthServiceTestLayer),
       ),
     );
 
@@ -35,10 +38,7 @@ describe("authService", () => {
 
     const session = await Effect.runPromise(
       program.pipe(
-        Effect.provide(AuthServiceLive),
-        Effect.provide(DatabaseServiceLive),
-        Effect.provide(KVServiceLive),
-        Effect.provide(BindingsServiceTest),
+        Effect.provide(AuthServiceTestLayer),
       ),
     );
 
