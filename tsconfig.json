@@ -14,5 +14,5 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["alchemy.run.ts", "vitest.setup.ts", "src/**/*.ts", "**/*.d.ts"]
+  "include": ["alchemy.run.ts", "vitest.setup.ts", "src/**/*.ts", "./src/env.d.ts"]
 }

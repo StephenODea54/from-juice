@@ -1,10 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
-import { Context, Data, Effect, Layer, Redacted } from "effect";
-import { AppConfig } from "@/services/config/config-service";
+import { Context, Data, Effect, Layer } from "effect";
+import { BindingsService } from "@/services/bindings/bindings-service";
 import { DatabaseService } from "@/services/db/db-service";
-import { KvService } from "@/services/kv/kv-service";
+import { KVService } from "@/services/kv/kv-service";
 
 class AuthError extends Data.TaggedError("AuthError")<{
   message?: string;
@@ -49,6 +49,12 @@ function createAuthConfig({
             generateId: false,
           },
         },
+        session: {
+          cookieCache: {
+            maxAge: 5 * 60, // 5 minutes (short-lived cookie)
+            refreshCache: false, // Disable stateless refresh
+          },
+        },
         experimental: { joins: true },
       }),
     catch: error => new AuthError({ cause: error, message: "Failed to initialize auth" }),
@@ -76,8 +82,8 @@ export const AuthServiceLive = Layer.effect(
   AuthService,
   Effect.gen(function* () {
     const { client } = yield* DatabaseService;
-    const kv = yield* KvService;
-    const config = yield* AppConfig;
+    const kv = yield* KVService;
+    const bindings = yield* BindingsService;
 
     // Better Auth config requires the secondary storage functions
     // to return promises and not our cool effect code
@@ -90,11 +96,11 @@ export const AuthServiceLive = Layer.effect(
     const auth = yield* createAuthConfig({
       db: client,
       secondaryStorage,
-      baseUrl: config.betterAuthUrl,
-      secret: Redacted.value(config.betterAuthSecret),
+      baseUrl: bindings.betterAuthUrl,
+      secret: bindings.betterAuthSecret,
       googleProvider: {
-        clientId: config.googleClientId,
-        clientSecret: Redacted.value(config.googleClientSecret),
+        clientId: bindings.googleClientId,
+        clientSecret: bindings.googleClientSecret,
       },
     });
 

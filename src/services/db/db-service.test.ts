@@ -1,7 +1,8 @@
 import { sql } from "drizzle-orm";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { DatabaseService, DatabaseServiceTest } from "./db-service";
+import { BindingsServiceTest } from "@/services/bindings/bindings-service";
+import { DatabaseService, DatabaseServiceLive } from "./db-service";
 
 describe("databaseService", () => {
   it("connects to the database", async () => {
@@ -16,7 +17,10 @@ describe("databaseService", () => {
     });
 
     const value = await Effect.runPromise(
-      program.pipe(Effect.provide(DatabaseServiceTest)),
+      program.pipe(
+        Effect.provide(DatabaseServiceLive),
+        Effect.provide(BindingsServiceTest),
+      ),
     );
 
     expect(value).toBe(1);
