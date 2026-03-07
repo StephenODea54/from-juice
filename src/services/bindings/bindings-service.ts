@@ -8,6 +8,7 @@ type Bindings = {
   googleClientSecret: string;
   dbConnectionUri: string;
   kv: KVNamespace;
+  postmarkApiKey: string;
 };
 
 export class BindingsService extends Context.Tag("BindingsService")<

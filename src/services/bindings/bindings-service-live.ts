@@ -11,5 +11,6 @@ export const BindingsServiceLive = Layer.sync(
     googleClientId: env.GOOGLE_CLIENT_ID,
     googleClientSecret: env.GOOGLE_CLIENT_SECRET,
     kv: env.KV_NAMESPACE,
+    postmarkApiKey: env.POSTMARK_API_KEY,
   }),
 );

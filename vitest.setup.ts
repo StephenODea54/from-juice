@@ -10,6 +10,7 @@ export async function setup({ provide }: TestProject) {
     dbConnectionUri,
     googleClientId,
     googleClientSecret,
+    postmarkApiKey,
   } = await import("./alchemy.run.ts");
 
   provide("betterAuthSecret", betterAuthSecret.unencrypted);
@@ -17,6 +18,7 @@ export async function setup({ provide }: TestProject) {
   provide("dbConnectionUri", dbConnectionUri.unencrypted);
   provide("googleClientId", googleClientId.unencrypted);
   provide("googleClientSecret", googleClientSecret.unencrypted);
+  provide("postmarkApiKey", postmarkApiKey.unencrypted);
 
   return async () => {
     await app.cleanup();
@@ -30,6 +32,7 @@ declare module "vitest" {
     dbConnectionUri: string;
     googleClientId: string;
     googleClientSecret: string;
+    postmarkApiKey: string;
   }
 }
 

@@ -11,5 +11,6 @@ export const BindingsServiceTest = Layer.sync(
     googleClientId: inject("googleClientId"),
     googleClientSecret: inject("googleClientSecret"),
     kv: new Map() as unknown as KVNamespace,
+    postmarkApiKey: inject("postmarkApiKey"),
   }),
 );

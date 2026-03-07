@@ -136,6 +136,14 @@ if (!process.env.GOOGLE_CLIENT_SECRET) {
 export const googleClientSecret = alchemy.secret(process.env.GOOGLE_CLIENT_SECRET);
 
 /* *
+* Postmark
+*/
+if (!process.env.POSTMARK_API_KEY) {
+  throw new Error("POSTMARK_API_KEY environment variable must be set");
+}
+export const postmarkApiKey = alchemy.secret(process.env.POSTMARK_API_KEY);
+
+/* *
 * KV Namespace
 */
 const kvNamespace = await KVNamespace("cache", {
@@ -166,6 +174,7 @@ if (stageType !== "TEST") {
       GOOGLE_CLIENT_SECRET: googleClientSecret,
       DB_CONNECTION_URI: dbConnectionUri,
       KV_NAMESPACE: kvNamespace,
+      POSTMARK_API_KEY: postmarkApiKey,
     },
   });
 
