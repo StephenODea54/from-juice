@@ -159,8 +159,9 @@ let userApplication: Worker<{
   BETTER_AUTH_SECRET: Secret<string>;
   DB_CONNECTION_URI: Secret<string>;
   GOOGLE_CLIENT_ID: Secret<string>;
-  GOOGLE_CLIENT_SECRET: Secret;
+  GOOGLE_CLIENT_SECRET: Secret<string>;
   KV_NAMESPACE: KVNamespace;
+  POSTMARK_API_KEY: Secret<string>;
 } & {
   ASSETS: Assets;
 }>;
