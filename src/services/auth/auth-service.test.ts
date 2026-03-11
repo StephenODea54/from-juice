@@ -4,7 +4,7 @@ import { KVServiceLive } from "@/services/kv/kv-service";
 import { BindingsServiceTest } from "../bindings/bindings-service-test";
 import { DatabaseServiceLive } from "../db/db-service";
 import { EmailServiceLive } from "../email/email-service";
-import { AuthService, AuthServiceLive } from "./auth-service";
+import { AuthError, AuthService, AuthServiceLive } from "./auth-service";
 
 const AuthServiceTestLayer = AuthServiceLive.pipe(
   Layer.provide(DatabaseServiceLive),
@@ -45,5 +45,34 @@ describe("authService", () => {
     );
 
     expect(session).toBeNull();
+  });
+
+  it("signup creates user with correct defaults", async () => {
+    const program = Effect.gen(function* () {
+      const { auth } = yield* AuthService;
+
+      return yield* Effect.tryPromise({
+        try: () => auth.api.signUpEmail({
+          body: {
+            name: "Test User",
+            email: `test-${Date.now()}@blackhole.postmarkapp.com`,
+            password: "password123456",
+          },
+          headers: new Headers(),
+        }),
+        catch: (cause) => {
+          console.error("🚨🚨🚨🚨🚨");
+          console.error(cause);
+          return new AuthError({ cause, message: "Signup failed" });
+        },
+      });
+    });
+
+    const result = await Effect.runPromise(
+      program.pipe(Effect.provide(AuthServiceTestLayer)),
+    );
+
+    expect(result.user.isOnboardingComplete).toBe(false);
+    expect(result.user.isArchived).toBe(false);
   });
 });

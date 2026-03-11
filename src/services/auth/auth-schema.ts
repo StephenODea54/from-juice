@@ -1,10 +1,8 @@
-import { sql } from "drizzle-orm";
-import { boolean, check, index, pgSchema, text, timestamp } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { boolean, check, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { generateCommonCols } from "@/services/db/utils/generate-common-cols";
 
-export const authSchema = pgSchema("auth");
-
-export const usersTable = authSchema.table("users", {
+export const usersTable = pgTable("users", {
   name: text().notNull(),
   email: text().notNull().unique(),
   emailVerified: boolean().notNull().default(false),
@@ -22,7 +20,7 @@ export const usersTable = authSchema.table("users", {
   `),
 ]);
 
-export const accountsTable = authSchema.table("accounts", {
+export const accountsTable = pgTable("accounts", {
   userId: text().notNull().references(() => usersTable.id),
   accountId: text().notNull(),
   providerId: text().notNull(),
@@ -38,7 +36,18 @@ export const accountsTable = authSchema.table("accounts", {
   index("accounts_user_id_idx").on(t.userId),
 ]);
 
-export const verificationsTable = authSchema.table("verifications", {
+export const usersTableRelations = relations(usersTable, ({ many }) => ({
+  accounts: many(accountsTable),
+}));
+
+export const accountsTableRelations = relations(accountsTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [accountsTable.userId],
+    references: [usersTable.id],
+  }),
+}));
+
+export const verificationsTable = pgTable("verifications", {
   identifier: text().notNull(),
   value: text().notNull(),
   expiresAt: timestamp({ withTimezone: true }).notNull(),

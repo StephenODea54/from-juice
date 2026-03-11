@@ -5,20 +5,21 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { Context, Data, Effect, Layer } from "effect";
 import { BindingsService } from "@/services/bindings/bindings-service";
 import { DatabaseService } from "@/services/db/db-service";
+import { EmailService } from "@/services/email/email-service";
 import { KVService } from "@/services/kv/kv-service";
-import { EmailService } from "../email/email-service";
+import * as authSchema from "./auth-schema";
 
-class AuthError extends Data.TaggedError("AuthError")<{
+export class AuthError extends Data.TaggedError("AuthError")<{
   message?: string;
   readonly cause: unknown;
 }> {};
 
-type DatabaseAdapter = NonNullable<Parameters<typeof betterAuth>[0]["database"]>;
+type DrizzleClient = Parameters<typeof drizzleAdapter>[0];
 type SecondaryStorage = NonNullable<Parameters<typeof betterAuth>[0]["secondaryStorage"]>;
 type GoogleProvider = NonNullable<Parameters<typeof betterAuth>[0]["socialProviders"]>["google"];
 
 type CreateAuthConfigParams = {
-  db: DatabaseAdapter;
+  db: DrizzleClient;
   secondaryStorage: SecondaryStorage;
   baseUrl: string;
   secret: string;
@@ -37,8 +38,15 @@ function createAuthConfig({
   return Effect.try({
     try: () =>
       betterAuth({
-        adapter: drizzleAdapter(db, {
+        database: drizzleAdapter(db, {
           provider: "pg",
+          schema: {
+            user: authSchema.usersTable,
+            userRelations: authSchema.usersTableRelations,
+            account: authSchema.accountsTable,
+            accountRelations: authSchema.accountsTableRelations,
+            verification: authSchema.verificationsTable,
+          },
         }),
         baseUrl,
         secret,
@@ -47,6 +55,16 @@ function createAuthConfig({
           google: googleProvider,
         },
         user: {
+          additionalFields: {
+            isOnboardingComplete: {
+              type: "boolean",
+              required: false,
+            },
+            isArchived: {
+              type: "boolean",
+              required: false,
+            },
+          },
           changeEmail: {
             enabled: true,
             sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
@@ -56,6 +74,12 @@ function createAuthConfig({
                 `Click the following link to approve the change to ${newEmail}: ${url}`,
               );
             },
+          },
+        },
+        session: {
+          cookieCache: {
+            maxAge: 5 * 60, // 5 minutes (short-lived cookie)
+            refreshCache: false, // Disable stateless refresh
           },
         },
         emailAndPassword: {
@@ -93,13 +117,8 @@ function createAuthConfig({
             generateId: false,
           },
         },
-        session: {
-          cookieCache: {
-            maxAge: 5 * 60, // 5 minutes (short-lived cookie)
-            refreshCache: false, // Disable stateless refresh
-          },
-        },
-        experimental: { joins: true },
+        // TODO: Wait for this to be compatible with drizzle v1.0 release
+        // experimental: { joins: true },
       }),
     catch: error => new AuthError({ cause: error, message: "Failed to initialize auth" }),
   });
