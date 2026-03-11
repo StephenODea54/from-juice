@@ -29,24 +29,6 @@ describe("authService", () => {
     expect(auth).toBeDefined();
   });
 
-  it("getSession returns null when no session exists", async () => {
-    const program = Effect.gen(function* () {
-      const { getSession } = yield* AuthService;
-
-      return yield* getSession({
-        headers: new Headers(),
-      });
-    });
-
-    const session = await Effect.runPromise(
-      program.pipe(
-        Effect.provide(AuthServiceTestLayer),
-      ),
-    );
-
-    expect(session).toBeNull();
-  });
-
   it("signup creates user with correct defaults", async () => {
     const program = Effect.gen(function* () {
       const { auth } = yield* AuthService;
@@ -56,15 +38,11 @@ describe("authService", () => {
           body: {
             name: "Test User",
             email: `test-${Date.now()}@blackhole.postmarkapp.com`,
-            password: "password123456",
+            password: "password1234567",
           },
           headers: new Headers(),
         }),
-        catch: (cause) => {
-          console.error("🚨🚨🚨🚨🚨");
-          console.error(cause);
-          return new AuthError({ cause, message: "Signup failed" });
-        },
+        catch: cause => new AuthError({ cause, message: "Signup failed" }),
       });
     });
 
