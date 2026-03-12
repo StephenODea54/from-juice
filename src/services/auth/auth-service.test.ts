@@ -1,12 +1,16 @@
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { TestDbLayer } from "@/services/db/db-service";
-import { TestKvLayer } from "@/services/kv/kv-service";
-import { AuthService, AuthServiceLive } from "./auth-service";
+import { KVServiceLive } from "@/services/kv/kv-service";
+import { BindingsServiceTest } from "../bindings/bindings-service-test";
+import { DatabaseServiceLive } from "../db/db-service";
+import { EmailServiceLive } from "../email/email-service";
+import { AuthError, AuthService, AuthServiceLive } from "./auth-service";
 
-const TestAuthLayer = AuthServiceLive.pipe(
-  Layer.provide(TestDbLayer),
-  Layer.provide(TestKvLayer),
+const AuthServiceTestLayer = AuthServiceLive.pipe(
+  Layer.provide(DatabaseServiceLive),
+  Layer.provide(KVServiceLive),
+  Layer.provide(EmailServiceLive),
+  Layer.provide(BindingsServiceTest),
 );
 
 describe("authService", () => {
@@ -16,24 +20,37 @@ describe("authService", () => {
       return auth;
     });
 
-    const auth = await Effect.runPromise(program.pipe(Effect.provide(TestAuthLayer), Effect.provide(TestKvLayer)));
+    const auth = await Effect.runPromise(
+      program.pipe(
+        Effect.provide(AuthServiceTestLayer),
+      ),
+    );
 
     expect(auth).toBeDefined();
   });
 
-  it("getSession returns null when no session exists", async () => {
+  it("signup creates user with correct defaults", async () => {
     const program = Effect.gen(function* () {
-      const { getSession } = yield* AuthService;
+      const { auth } = yield* AuthService;
 
-      return yield* getSession({
-        headers: new Headers(),
+      return yield* Effect.tryPromise({
+        try: () => auth.api.signUpEmail({
+          body: {
+            name: "Test User",
+            email: `test-${Date.now()}@blackhole.postmarkapp.com`,
+            password: "password1234567",
+          },
+          headers: new Headers(),
+        }),
+        catch: cause => new AuthError({ cause, message: "Signup failed" }),
       });
     });
 
-    const session = await Effect.runPromise(
-      program.pipe(Effect.provide(TestAuthLayer)),
+    const result = await Effect.runPromise(
+      program.pipe(Effect.provide(AuthServiceTestLayer)),
     );
 
-    expect(session).toBeNull();
+    expect(result.user.isOnboardingComplete).toBe(false);
+    expect(result.user.isArchived).toBe(false);
   });
 });

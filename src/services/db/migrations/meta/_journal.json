@@ -15,6 +15,13 @@
       "when": 1772152102730,
       "tag": "0001_jazzy_ikaris",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773113827045,
+      "tag": "0002_easy_morbius",
+      "breakpoints": true
     }
   ]
 }

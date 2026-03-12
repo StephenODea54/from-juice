@@ -30,6 +30,7 @@
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "effect": "^3.19.19",
+    "postmark": "^4.0.7",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

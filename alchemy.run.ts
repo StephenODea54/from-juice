@@ -1,3 +1,5 @@
+import type { Secret } from "alchemy";
+import type { Assets, Worker } from "alchemy/cloudflare";
 import alchemy from "alchemy";
 import { KVNamespace, TanStackStart } from "alchemy/cloudflare";
 import { GitHubComment } from "alchemy/github";
@@ -113,12 +115,37 @@ await Exec("db-migrate", {
 if (!process.env.BETTER_AUTH_URL) {
   throw new Error("BETTER_AUTH_URL environment variable must be set");
 }
-const betterAuthUrl = alchemy.secret(process.env.BETTER_AUTH_URL);
+export const betterAuthUrl = alchemy.secret(process.env.BETTER_AUTH_URL);
 
 if (!process.env.BETTER_AUTH_SECRET) {
   throw new Error("BETTER_AUTH_SECRET environment variable must be set");
 }
-const betterAuthSecret = alchemy.secret(process.env.BETTER_AUTH_SECRET);
+export const betterAuthSecret = alchemy.secret(process.env.BETTER_AUTH_SECRET);
+
+/* *
+* Social Provider Credentials
+*/
+if (!process.env.GOOGLE_CLIENT_ID) {
+  throw new Error("GOOGLE_CLIENT_ID environment variable must be set");
+}
+export const googleClientId = alchemy.secret(process.env.GOOGLE_CLIENT_ID);
+
+if (!process.env.GOOGLE_CLIENT_SECRET) {
+  throw new Error("GOOGLE_CLIENT_SECRET environment variable must be set");
+}
+export const googleClientSecret = alchemy.secret(process.env.GOOGLE_CLIENT_SECRET);
+
+/* *
+* Postmark
+*/
+export const postmarkApiKey = stageType === "TEST" || stageType === "PULL_REQUEST"
+  ? alchemy.secret("POSTMARK_API_TEST")
+  : (() => {
+      if (!process.env.POSTMARK_API_KEY) {
+        throw new Error("POSTMARK_API_KEY environment variable must be set");
+      }
+      return alchemy.secret(process.env.POSTMARK_API_KEY);
+    })();
 
 /* *
 * KV Namespace
@@ -130,13 +157,29 @@ const kvNamespace = await KVNamespace("cache", {
 /* *
 * User Application Config
 */
+
+let userApplication: Worker<{
+  BETTER_AUTH_URL: Secret<string>;
+  BETTER_AUTH_SECRET: Secret<string>;
+  DB_CONNECTION_URI: Secret<string>;
+  GOOGLE_CLIENT_ID: Secret<string>;
+  GOOGLE_CLIENT_SECRET: Secret<string>;
+  KV_NAMESPACE: KVNamespace;
+  POSTMARK_API_KEY: Secret<string>;
+} & {
+  ASSETS: Assets;
+}>;
+
 if (stageType !== "TEST") {
-  const userApplication = await TanStackStart("app", {
+  userApplication = await TanStackStart("app", {
     bindings: {
       BETTER_AUTH_URL: betterAuthUrl,
       BETTER_AUTH_SECRET: betterAuthSecret,
+      GOOGLE_CLIENT_ID: googleClientId,
+      GOOGLE_CLIENT_SECRET: googleClientSecret,
       DB_CONNECTION_URI: dbConnectionUri,
       KV_NAMESPACE: kvNamespace,
+      POSTMARK_API_KEY: postmarkApiKey,
     },
   });
 
@@ -162,6 +205,8 @@ Built from commit \`${process.env.GITHUB_SHA?.slice(0, 7)}\`
     });
   }
 }
+
+export { userApplication };
 
 if (stageType !== "TEST") {
   await app.finalize();
