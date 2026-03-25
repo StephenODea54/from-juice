@@ -54,6 +54,7 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          POSTMARK_API_KEY: ${{ secrets.POSTMARK_API_KEY }}
           PRODUCTION_DATABASE_URI: ${{ secrets.PRODUCTION_DATABASE_URI }}
           PULL_REQUEST: ${{ github.event.number }}
           GITHUB_SHA: ${{ github.sha }}
@@ -101,5 +102,6 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+          POSTMARK_API_KEY: ${{ secrets.POSTMARK_API_KEY }}
           PRODUCTION_DATABASE_URI: ${{ secrets.PRODUCTION_DATABASE_URI }}
           PULL_REQUEST: ${{ github.event.number }}
