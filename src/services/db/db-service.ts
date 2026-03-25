@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/neon-http";
 import { Context, Data, Effect, Layer } from "effect";
 import { BindingsService } from "@/services/bindings/bindings-service";
+import { BindingsServiceTest } from "@/services/bindings/bindings-service-test";
 
 class DatabaseConnectionError extends Data.TaggedError("DatabaseConnectionError")<{
   message?: string;
@@ -30,4 +31,8 @@ export const DatabaseServiceLive = Layer.effect(
         }),
     });
   }),
+);
+
+export const DatabaseServiceTestLayer = DatabaseServiceLive.pipe(
+  Layer.provide(BindingsServiceTest),
 );

@@ -8,6 +8,6 @@ export function generateCommonCols(monogram: string) {
   return {
     id: text().primaryKey().$defaultFn(() => `${monogram}-${crypto.randomUUID()}`),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
   };
 }
